@@ -18,8 +18,9 @@ public class AuthenticationController {
 
     @PostMapping
     public ResponseUser register(@RequestBody RegisterUser registerUser) {
-        return authenticationService
-                .register(registerUser);
+        return new ResponseUser("Please contact with me ", "New registration is not allowed", "fatiheker97@gmail.com");
+//        return authenticationService
+//                .register(registerUser);
     }
 
 
