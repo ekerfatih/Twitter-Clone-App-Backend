@@ -1,4 +1,7 @@
 spring:
+  application:
+    name: s19.challenge
+
   datasource:
     url: jdbc:postgresql://${PROD_DB_HOST}:${PROD_DB_PORT}/${PROD_DB_NAME}?sslmode=require
     username: ${PROD_DB_USERNAME}
@@ -8,6 +11,23 @@ spring:
   sql:
     init:
       mode: never
+
   jpa:
     properties:
       hibernate.default_schema: twitter
+
+  web:
+    cors:
+      allowed-origins: "http://localhost:3000"
+      allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+      allowed-headers: "*"
+      allow-credentials: true
+
+server:
+  servlet:
+    session:
+      cookie:
+        path: /
+        same-site: none
+        secure: true
+  forward-headers-strategy: framework
