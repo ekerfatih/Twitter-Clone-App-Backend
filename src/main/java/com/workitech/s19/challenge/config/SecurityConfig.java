@@ -54,9 +54,9 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        // context-path (/workintech) otomatik eklenecek
-                        .requestMatchers("/login", "/logout").permitAll()
-                        .requestMatchers("/register/**").permitAll()
+                        .requestMatchers("/login","/login/**","/logout").permitAll()
+                        .requestMatchers("/register","/register/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**","/swagger-ui.html","/swagger-ui/**","/webjars/**").permitAll()
                         .anyRequest().authenticated()
                 )
 
