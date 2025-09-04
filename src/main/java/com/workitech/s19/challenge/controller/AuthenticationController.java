@@ -3,6 +3,7 @@ package com.workitech.s19.challenge.controller;
 import com.workitech.s19.challenge.dto.register.RegisterUser;
 import com.workitech.s19.challenge.dto.register.ResponseUser;
 import com.workitech.s19.challenge.service.AuthenticationService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,9 +19,7 @@ public class AuthenticationController {
 
     @PostMapping
     public ResponseUser register(@RequestBody RegisterUser registerUser) {
-        return new ResponseUser("Please contact with me ", "New registration is not allowed", "fatiheker97@gmail.com");
-//        return authenticationService
-//                .register(registerUser);
+        return authenticationService.register(registerUser);
     }
 
 

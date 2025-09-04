@@ -37,9 +37,7 @@ public class SecurityConfig {
     };
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration cfg) throws Exception {
@@ -80,11 +78,10 @@ public class SecurityConfig {
         var cfg = new CorsConfiguration();
         cfg.setAllowedOrigins(List.of(
                 "http://localhost:3000",
-                "https://twitter-clone-frontend-production-5591.up.railway.app",
-                "https://s19-javachallange-twitter-clone-nex.vercel.app"
+                "https://twitter-clone-frontend-production-5591.up.railway.app"
         ));
-        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        cfg.setAllowedHeaders(List.of("Content-Type", "Authorization", "X-Requested-With"));
+        cfg.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
+        cfg.setAllowedHeaders(List.of("Content-Type","Authorization","X-Requested-With"));
         cfg.setAllowCredentials(true);
         cfg.setMaxAge(Duration.ofHours(1));
         var source = new UrlBasedCorsConfigurationSource();

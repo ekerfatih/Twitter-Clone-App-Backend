@@ -1,22 +1,4 @@
-management:
-  endpoints:
-    web:
-      exposure:
-        include: '*'
-  info:
-    env:
-      enabled: true
-
-info:
-  application:
-    name: sprint19challange
-    description: A twitter clone api
-    author: Fatih Eker
-    version: '@project.version@'
-
 spring:
-  profiles:
-    active: docker
   application:
     name: s19.challenge
   datasource:

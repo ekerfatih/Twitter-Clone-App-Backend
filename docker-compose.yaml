@@ -1,15 +1,16 @@
-version: '3.8'
+version: "3.8"
 services:
-  db:
-    image: postgres:16
-    restart: always
-    ports:
-      - "5432:5432"
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: s19-app
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 341344
-      POSTGRES_DB: blog
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-volumes:
-  pgdata:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${NEON_HOST}:5432/${NEON_DB}?sslmode=require&currentSchema=twitter
+      SPRING_DATASOURCE_USERNAME: ${NEON_USER}
+      SPRING_DATASOURCE_PASSWORD: ${NEON_PASSWORD}
+      APP_PORT: ${APP_PORT}
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    restart: unless-stopped
