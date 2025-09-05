@@ -20,7 +20,7 @@ public class JwtUtil {
     @Value("${security.jwt.issuer:Twitter}")
     private String issuer;
 
-    @Value("${security.jwt.ttlMillis:600000}")
+    @Value("${security.jwt.ttlMillis:6000000}")
     private long ttlMillis;
 
     private SecretKey key;
