@@ -1,21 +1,19 @@
 package com.workitech.s19.challenge.config;
 
+import com.workitech.s19.challenge.security.JwtAuthFilter;
+import com.workitech.s19.challenge.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -26,12 +24,17 @@ import java.util.List;
 
 @Configuration
 public class SecurityConfig {
-
-
-    @Bean
-    public org.springframework.security.web.context.SecurityContextRepository securityContextRepository() {
-        return new org.springframework.security.web.context.HttpSessionSecurityContextRepository();
-    }
+    private static final String[] PUBLIC = {
+            "/auth/login",
+            "/register",
+            "/health",
+            "/actuator/health",
+            "/v3/api-docs/**",
+            "/swagger-ui.html",
+            "/swagger-ui/**",
+            "/webjars/**",
+            "/error"
+    };
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -39,76 +42,53 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(UserDetailsService uds) {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(uds);
-        provider.setPasswordEncoder(passwordEncoder());
-        return new ProviderManager(provider);
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration cfg) throws Exception {
+        return cfg.getAuthenticationManager();
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public JwtAuthFilter jwtAuthFilter(JwtUtil jwtUtil, UserDetailsService uds) {
+        return new JwtAuthFilter(jwtUtil, uds, List.of(PUBLIC));
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthFilter jwt) throws Exception {
         return http
                 .cors(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable)
-
-                .authorizeHttpRequests(auth -> auth
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(a -> a
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/login","/login/**","/logout").permitAll()
-                        .requestMatchers("/health").permitAll()
-                        .requestMatchers("/register","/register/**").permitAll()
-                        .requestMatchers("/v3/api-docs/**","/swagger-ui.html","/swagger-ui/**","/webjars/**").permitAll()
+                        .requestMatchers(PUBLIC).permitAll()
                         .anyRequest().authenticated()
                 )
-
-                // JSON tabanlı custom controller kullanıyoruz
-                .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .logout(AbstractHttpConfigurer::disable)
-
-                // Redirect yerine 401
-                .exceptionHandling(e -> e.authenticationEntryPoint(unauthorizedEntryPoint()))
-
-                // JSESSIONID gerektiğinde oluşturulsun
-                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-
-                // Bazı dev araçları için (örn. H2 console) aynı origin frame izni
-                .headers(h -> h.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
-
-                // Önceki request'i hatırlayıp redirect yapmasın
+                .formLogin(f -> f.disable())
+                .httpBasic(b -> b.disable())
+                .logout(l -> l.disable())
+                .exceptionHandling(e -> e.authenticationEntryPoint((req, res, ex) -> {
+                    res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    res.setContentType("application/json");
+                    res.getWriter().write("{\"message\":\"unauthorized\"}");
+                }))
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .requestCache(c -> c.disable())
-
+                .addFilterBefore(jwt, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration cfg = new CorsConfiguration();
+        var cfg = new CorsConfiguration();
         cfg.setAllowedOrigins(List.of(
                 "http://localhost:3000",
-                "https://twitter-clone-frontend-production-5591.up.railway.app"
+                "https://twitter-clone-frontend-production-5591.up.railway.app",
+                "https://s19-javachallange-twitter-clone-nex.vercel.app"
         ));
-        cfg.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
-        cfg.setAllowedHeaders(List.of("Content-Type","Authorization","X-Requested-With"));
+        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        cfg.setAllowedHeaders(List.of("Content-Type", "Authorization", "X-Requested-With"));
         cfg.setAllowCredentials(true);
         cfg.setMaxAge(Duration.ofHours(1));
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        var source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", cfg);
         return source;
-    }
-
-//    public CorsConfigurationSource corsConfigurationSource() {
-//        CorsConfiguration c = new CorsConfiguration();
-//        c.setAllowCredentials(true);
-//        c.setAllowedOrigins(List.of("http://localhost:3000"));
-//        c.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
-//        c.setAllowedHeaders(List.of("*"));
-//        UrlBasedCorsConfigurationSource s = new UrlBasedCorsConfigurationSource();
-//        s.registerCorsConfiguration("/**", c);
-//        return s;
-//    }
-
-    private AuthenticationEntryPoint unauthorizedEntryPoint() {
-        return (request, response, ex) -> response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     }
 }
