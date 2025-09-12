@@ -35,3 +35,4 @@ build/
 src/main/resources/application-dev.yaml
 src/main/resources/application-dev.yaml
 .env
+/s19challenge-app.tar
