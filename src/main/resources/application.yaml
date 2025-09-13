@@ -1,12 +1,10 @@
 spring:
+  profiles:
+    active: docker
   config:
     import: optional:file:.env[.properties]
   application:
     name: s19.challenge
-  datasource:
-    url: jdbc:postgresql://${NEON_HOST}:5432/${NEON_DB}?sslmode=require&currentSchema=twitter
-    username: ${NEON_USER}
-    password: ${NEON_PASSWORD}
   jpa:
     open-in-view: false
     hibernate:
@@ -15,10 +13,6 @@ spring:
       hibernate:
         default_schema: twitter
 
-security:
-  jwt:
-    secret: ${JWT_SECRET}
-
 server:
   port: ${APP_PORT}
   servlet:
@@ -26,12 +20,15 @@ server:
     session:
       cookie:
         path: /
-        same-site: lax
+        same-site: Lax
         secure: false
+
+security:
+  jwt:
+    secret: ${JWT_SECRET}
 
 logging:
   level:
     root: INFO
     org.springframework.security: DEBUG
-    com.workitech.s19.challenge.security: DEBUG
-    com.workitech.s19.challenge.util: DEBUG
+    com.workitech.s19.challenge: DEBUG

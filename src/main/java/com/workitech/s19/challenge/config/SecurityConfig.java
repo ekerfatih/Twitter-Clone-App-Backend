@@ -58,16 +58,17 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        var cfg = new CorsConfiguration();
-        cfg.setAllowedOrigins(List.of(
+        CorsConfiguration cfg = new CorsConfiguration();
+        cfg.setAllowedOriginPatterns(List.of(
                 "http://localhost:3000",
-                "https://s19-javachallange-twitter-clone-nex.vercel.app/"
+                "https://s19-javachallange-twitter-clone-nex.vercel.app",
+                "https://*.vercel.app"
         ));
-        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"));
         cfg.setAllowedHeaders(List.of("Content-Type", "Authorization", "X-Requested-With"));
         cfg.setAllowCredentials(true);
         cfg.setMaxAge(Duration.ofHours(1));
-        var source = new UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", cfg);
         return source;
     }

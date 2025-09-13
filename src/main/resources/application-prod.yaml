@@ -1,10 +1,21 @@
 spring:
+  datasource:
+    url: jdbc:postgresql://${NEON_HOST}:5432/${NEON_DB}?sslmode=require&currentSchema=twitter
+    username: ${NEON_USER}
+    password: ${NEON_PASSWORD}
   jpa:
-    show-sql: false
+    hibernate:
+      ddl-auto: validate
+
+server:
+  servlet:
+    session:
+      cookie:
+        same-site: None
+        secure: true
 
 logging:
   level:
     root: INFO
     org.springframework.security: INFO
-    com.workitech.s19.challenge.security: INFO
-    com.workitech.s19.challenge.util: INFO
+    com.workitech.s19.challenge: INFO

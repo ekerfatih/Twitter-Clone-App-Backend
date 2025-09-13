@@ -17,20 +17,30 @@ public class LoginController {
     private final LoginService loginService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
-        return ResponseEntity.ok(loginService.login(loginRequest));
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest req, HttpServletResponse res) {
+        LoginResponse out = loginService.login(req);
+        ResponseCookie cookie = ResponseCookie.from("access_token", out.token())
+                .httpOnly(true)
+                .secure(Boolean.parseBoolean(System.getProperty("COOKIE_SECURE", "false")))
+                .sameSite(System.getProperty("COOKIE_SAMESITE", "Lax"))
+                .path("/")
+                .maxAge(60 * 60 * 24)
+                .build();
+        res.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, cookie.toString());
+        return ResponseEntity.ok(out);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletResponse res) {
         ResponseCookie cookie = ResponseCookie.from("access_token", "")
-                .path("/")
                 .httpOnly(true)
-                .secure(true)
-                .sameSite("Lax") // cross-site ise "None"
+                .secure(Boolean.parseBoolean(System.getProperty("COOKIE_SECURE", "false")))
+                .sameSite(System.getProperty("COOKIE_SAMESITE", "Lax"))
+                .path("/")
                 .maxAge(0)
                 .build();
         res.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, cookie.toString());
         return ResponseEntity.noContent().build();
     }
+
 }
