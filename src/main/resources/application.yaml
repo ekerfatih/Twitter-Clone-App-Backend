@@ -1,22 +1,6 @@
-management:
-  endpoints:
-    web:
-      exposure:
-        include: '*'
-  info:
-    env:
-      enabled: true
-
-info:
-  application:
-    name: sprint19challange
-    description: A twitter clone api
-    author: Fatih Eker
-    version: '@project.version@'
-
 spring:
-  profiles:
-    active: docker
+  config:
+    import: optional:file:.env[.properties]
   application:
     name: s19.challenge
   datasource:
@@ -28,7 +12,12 @@ spring:
     hibernate:
       ddl-auto: update
     properties:
-      hibernate.default_schema: twitter
+      hibernate:
+        default_schema: twitter
+
+security:
+  jwt:
+    secret: ${JWT_SECRET}
 
 server:
   port: ${APP_PORT}

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class UserMapper {
-    public ResponseUser toResponse(User user, String message) {
-        return new ResponseUser(user.getUsername(), user.getEmail(), message);
+    public ResponseUser toResponse( User user, String message) {
+        return new ResponseUser( user.getUsername(), user.getEmail(), message);
     }
 }

@@ -3,7 +3,6 @@ package com.workitech.s19.challenge.controller;
 import com.workitech.s19.challenge.dto.register.RegisterUser;
 import com.workitech.s19.challenge.dto.register.ResponseUser;
 import com.workitech.s19.challenge.service.AuthenticationService;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

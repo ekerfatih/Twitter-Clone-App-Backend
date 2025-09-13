@@ -1,16 +1,11 @@
-version: "3.8"
 services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: s19-app
+    env_file:
+      - .env
     environment:
-      SPRING_PROFILES_ACTIVE: prod
-      SPRING_DATASOURCE_URL: jdbc:postgresql://${NEON_HOST}:5432/${NEON_DB}?sslmode=require&currentSchema=twitter
-      SPRING_DATASOURCE_USERNAME: ${NEON_USER}
-      SPRING_DATASOURCE_PASSWORD: ${NEON_PASSWORD}
-      APP_PORT: ${APP_PORT}
+      SPRING_PROFILES_ACTIVE: docker
     ports:
       - "${APP_PORT}:${APP_PORT}"
     restart: unless-stopped

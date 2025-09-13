@@ -8,7 +8,6 @@ import com.workitech.s19.challenge.exceptions.UniqueKeyTwitterException;
 import com.workitech.s19.challenge.mapper.UserMapper;
 import com.workitech.s19.challenge.repository.RoleRepository;
 import com.workitech.s19.challenge.repository.UserRepository;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -49,6 +48,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setRole(userRole);
         userRepository.save(user);
 
-        return userMapper.toResponse(user, "Registered Successfully");
+        var token = jwtService.generateToken(user);
+
+        return userMapper.toResponse( user, "Registered Successfully");
     }
 }
